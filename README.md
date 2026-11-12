@@ -1,41 +1,47 @@
-# Gold Signals
+# Gold Bot — Market Intelligence
 
-A lightweight, mobile-friendly XAU/USD (gold) market-signal dashboard.
+A mobile-first, read-only educational dashboard for studying gold-market structure. It includes a TradingView chart embed, multi-timeframe technical readings, simple historical pattern observations, and a hypothetical scenario calculator.
 
-## Features
+## Current capabilities
 
-- Requests historical XAU/USD candles from the Twelve Data time-series API.
-- Analyses the 15-minute, 1-hour, and 4-hour timeframes.
-- Uses EMA 20/50/200, MACD, RSI, ATR, and a 20-bar breakout check.
-- Displays a BUY, SELL, or NO TRADE indication with an illustrative entry, stop-loss, and take-profit calculation when a directional signal is present.
-- Includes a light/dark colour scheme based on the device preference.
+- TradingView embedded chart for **OANDA:XAUUSD**.
+- Twelve Data historical candles for XAU/USD at 15-minute, 1-hour and 4-hour intervals.
+- EMA 20/50/200, RSI, MACD histogram and ATR calculations.
+- Transparent market-regime descriptions and rule-based pattern observations.
+- Data-feed status, timestamps and unavailable-data messaging.
+- Hypothetical arithmetic calculator. It does not recommend a position size, entry, stop, target or trade duration.
+- Responsive dark interface designed for phone screens first.
 
-## Run it
+## Deploy on Vercel
 
-This is a static HTML application. The homepage is `index.html`.
+The repository includes a Vercel serverless endpoint at `/api/market`. The Twelve Data credential is read only on the server.
 
-1. Deploy the repository to a static hosting provider such as Vercel.
-2. Open the deployed website.
-3. Enter a valid Twelve Data API key in the key field.
-4. Select **Analyse gold** to request the latest available candle data and calculate the indicators.
+1. Open the **Gold Bot** project in Vercel.
+2. Go to **Settings → Environment Variables**.
+3. Add `TWELVE_DATA_API_KEY` with your Twelve Data API key. Select the Production and Preview environments you intend to use.
+4. Save the variable and redeploy the latest deployment.
+5. Open the site and check that the header reports **DATA CONNECTED**.
 
-The key is saved in the browser's `localStorage` on that device. Do not use a key with permissions or quotas you cannot afford to expose in a browser. For a production application, proxy data-provider requests through a server-side endpoint and keep provider credentials in server-side environment variables.
+Do not paste the provider key into `index.html`, commit it to GitHub, or share it in chat. If a key was previously embedded in a page or shared publicly, rotate it with the provider.
 
-## Configuration
+## Data-source limitations
 
-The `CONFIG` object near the beginning of the script in `index.html` controls:
+The TradingView chart is configured for **OANDA:XAUUSD**. The indicator calculations use Twelve Data's **XAU/USD** candles. Neither source is authenticated to the user's Exness account, and neither is guaranteed to match Exness's broker-specific **XAUUSDm** quotes, spread, candle boundaries or execution prices. The dashboard labels these as external reference data.
 
-- `API_KEY`: optional key embedded in the page (prefer entering it in the app instead).
-- `SYMBOL`: defaults to `XAU/USD`.
-- `TIMEFRAMES`: defaults to `15min`, `1h`, and `4h`.
-- `SIGNAL_TF`: initially selected timeframe.
-- `SL_ATR`, `TP_ATR`: ATR multipliers used for the displayed levels.
-- `MIN_SCORE`: minimum indicator score required for a directional signal.
+The Twelve Data endpoint requires a plan that supports the requested symbol and intervals. Provider quotas, symbol availability, latency and market-session conditions can affect updates. The dashboard refreshes the readings once per minute, but provider data may update less frequently. A displayed refresh time is not a guarantee of tick-by-tick data.
 
-## Important risk notice
+## Calculator assumptions
 
-This project is an indicator-based educational tool, not an automated trading system or a guarantee of market direction. Its BUY/SELL/NO TRADE output can be wrong, delayed, or affected by missing data, API limits, and market volatility. The displayed confidence is a simple indicator-score proportion, not a statistically validated probability of success. Nothing here is financial advice. Verify data independently and make trading decisions carefully.
+The scenario calculator uses:
 
-## Data provider
+`(hypothetical exit price - hypothetical entry price) × lot quantity × contract units per lot - entered costs`
 
-Market data is requested from [Twelve Data](https://twelvedata.com/). API availability, symbol support, and request limits depend on the provider and the user's plan.
+The contract units per lot field is intentionally left blank: users must consult the relevant instrument specification rather than assume every broker uses identical contract settings. The result is a simplified educational illustration, not an estimate of an actual account outcome.
+
+## Scope and safety
+
+Gold Bot is read-only. It does not connect to MT5, authenticate to a brokerage account, submit or manage orders, or generate actionable BUY/SELL instructions, entry levels, stop-loss levels, take-profit levels or trade-duration recommendations. Market-regime labels and pattern observations describe historical data; they are not predictions or validated probabilities of success.
+
+## Local development
+
+This is a static front end plus a Vercel Node.js serverless function. Run it with the Vercel CLI to test the `/api/market` route locally; a plain static file preview will show the interface but cannot execute the serverless API route.
